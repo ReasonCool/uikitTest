@@ -12,13 +12,14 @@ class WebCan: UIViewController{
         super.viewDidLoad()
         let imageView:UIImageView = UIImageView()
         view.addSubview(imageView)
-        imageView.frame = CGRect(x: 100, y: 100, width: 300, height: 300)
-//        NSLayoutConstraint.activate([
-//            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-//            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-//            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-//            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-//            ])
+//        imageView.frame = CGRect(x: 100, y: 100, width: 300, height: 300)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
 
 
 

@@ -29,8 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         //   window?.rootViewController = navController
 
 
-         window?.rootViewController = WebCan()
-      //   window?.rootViewController = TabBarController() // 设置根控制器
+         //window?.rootViewController = WebCan()
+          window?.rootViewController = TabBarController() // 设置根控制器
 
         window?.windowScene = windowScene
 
