@@ -40,11 +40,22 @@ extension MJPEGStreamer: URLSessionDataDelegate {
     ) {
         buffer = Data()
         // 判断是否为 multipart 流
-
+        guard let contentType = (response as? HTTPURLResponse)?.allHeaderFields["Content-Type"] as? String else {
+                  completionHandler(.cancel)
+                  return
+              }
+        if  let boundaryRange = contentType.range(of: "boundary=.*?$", options: .regularExpression){
+            boundary = String(contentType[boundaryRange].dropFirst("boundary=".count))
+                    completionHandler(.allow)
+            completionHandler(.allow)
+        }
+        if  let boundaryRange = contentType.range(of: "image/jpeg", options: .regularExpression){
+            //contentType: "image/jpeg"
             // 普通 JPEG 流
             boundary = nil
+            completionHandler(.allow)
+        }
 
-        completionHandler(.allow)
     }
 
     // 持续接收数据
@@ -55,9 +66,31 @@ extension MJPEGStreamer: URLSessionDataDelegate {
 }
 private extension MJPEGStreamer {
     func processBuffer() {
-        processContinuousJPEGBuffer()
-        
-    }
+            if let boundary = boundary {
+                // 处理 multipart 流（原有逻辑）
+                processMultipartBuffer( )
+            } else {
+                // 处理连续 JPEG 流（新增逻辑）
+                processContinuousJPEGBuffer()
+            }
+        }
+    func processMultipartBuffer() {
+            guard let boundary = self.boundary else { return }
+            let boundaryPrefix = "--\(boundary)".data(using: .utf8)!
+
+            // 查找边界位置
+            while let range = buffer.range(of: boundaryPrefix) {
+                // 提取一个完整帧的数据（从上一个边界到当前边界）
+                let frameRange = buffer.startIndex..<range.upperBound
+                guard let frameEnd = buffer.range(of: boundaryPrefix, options: [], in: range.upperBound..<buffer.endIndex) else { break }
+
+                let frameData = buffer.subdata(in: range.upperBound..<frameEnd.lowerBound)
+                processFrameData(frameData)
+
+                // 移除已处理的数据
+                buffer.removeSubrange(buffer.startIndex..<frameEnd.upperBound)
+            }
+        }
     // 处理无分隔符的连续 JPEG 流
         func processContinuousJPEGBuffer() {
             let startMarker = Data([0xFF, 0xD8]) // JPEG 起始标记
@@ -110,6 +143,7 @@ private extension MJPEGStreamer {
         }
     }
 }
+
 
 
 
