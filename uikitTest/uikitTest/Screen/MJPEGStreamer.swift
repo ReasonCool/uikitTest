@@ -12,7 +12,10 @@ class MJPEGStreamer: NSObject  {
     private var boundary: String?
     private var buffer = Data()
     private var imageView :UIImageView?
-
+    private var url:URL!
+    private var retryCount = 0
+       private let maxRetries = 3  // 可設定最大重試次數
+       private let retryInterval: TimeInterval = 5  // 重新抓取的間隔（秒）
      init(imageView:UIImageView) {
         super.init()
         self.imageView = imageView
@@ -20,6 +23,7 @@ class MJPEGStreamer: NSObject  {
     }
 
     func startStream(url: URL) {
+        self.url = url
         dataTask = session.dataTask(with: url)
         dataTask?.resume()
     }
@@ -28,6 +32,11 @@ class MJPEGStreamer: NSObject  {
         dataTask?.cancel()
         buffer = Data()
     }
+    // 啟動抓取任務
+        func fetchData() {
+
+            startStream(url: self.url)
+        }
 }
 
 extension MJPEGStreamer: URLSessionDataDelegate {
@@ -65,12 +74,23 @@ extension MJPEGStreamer: URLSessionDataDelegate {
     }
     // 資料接收完成或出錯時被呼叫
      func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-           if let error = error {
-               print("傳輸錯誤: \(error)")
-               return
-           }
-           print("所有資料接收完成 ")
-           // 處理完整資料（例如解析 JSON、保存到檔案等）
+         if let error = error {
+                    print("資料傳輸失敗: \(error.localizedDescription)")
+                    return
+                }
+
+                print("資料接收完成，準備重新抓取...")
+
+                // 檢查是否超過最大重試次數
+                if retryCount < maxRetries {
+                    retryCount += 1
+                    // 延遲後重新抓取
+                    DispatchQueue.global().asyncAfter(deadline: .now() + retryInterval) { [weak self] in
+                        self?.fetchData()
+                    }
+                } else {
+                    print("已達到最大重試次數，停止重新抓取")
+                }
        }
 }
 private extension MJPEGStreamer {
