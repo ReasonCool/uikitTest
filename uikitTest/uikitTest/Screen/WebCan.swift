@@ -10,19 +10,30 @@ import UIKit
 class WebCan: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
-        let imageView:UIImageView = UIImageView()
-        view.addSubview(imageView)
-//        imageView.frame = CGRect(x: 100, y: 100, width: 300, height: 300)
+        let imageView: UIImageView = UIImageView()
+        imageView.frame = CGRect(x: 100, y: 100, width: 300, height: 300)
+
+        let subView: UIView = UIView()
+        subView.addSubview(imageView)
+        view.addSubview(subView)
+
+        // 修正点 1: 删除多余的句点
+        subView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            subView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            subView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            subView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            subView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]) 
+
+        // 修正点 2: 为 imageView 添加约束
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-
-
-
+            imageView.centerXAnchor.constraint(equalTo: subView.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: subView.centerYAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: 300),
+            imageView.heightAnchor.constraint(equalToConstant: 300)
+        ])
 
         let streamer = MJPEGStreamer(imageView: imageView)
         let url = URL(string: "https://cctv-ss04.thb.gov.tw:443/T14A-006K+950")!
