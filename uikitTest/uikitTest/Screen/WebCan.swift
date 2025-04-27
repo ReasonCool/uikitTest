@@ -27,6 +27,8 @@ class WebCan: UIViewController{
         let streamer = MJPEGStreamer(imageView: imageView)
         let url = URL(string: "https://cctv-ss04.thb.gov.tw:443/T14A-006K+950")!
          streamer.startStream(url: url)
+
+
     }
 }
 

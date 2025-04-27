@@ -46,7 +46,7 @@ extension MJPEGStreamer: URLSessionDataDelegate {
               }
         if  let boundaryRange = contentType.range(of: "boundary=.*?$", options: .regularExpression){
             boundary = String(contentType[boundaryRange].dropFirst("boundary=".count))
-                    completionHandler(.allow)
+
             completionHandler(.allow)
         }
         if  let boundaryRange = contentType.range(of: "image/jpeg", options: .regularExpression){
@@ -63,6 +63,15 @@ extension MJPEGStreamer: URLSessionDataDelegate {
         buffer.append(data)
         processBuffer()
     }
+    // 資料接收完成或出錯時被呼叫
+     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+           if let error = error {
+               print("傳輸錯誤: \(error)")
+               return
+           }
+           print("所有資料接收完成 ")
+           // 處理完整資料（例如解析 JSON、保存到檔案等）
+       }
 }
 private extension MJPEGStreamer {
     func processBuffer() {
